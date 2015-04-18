@@ -1,21 +1,22 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-author: "Mikhail Tarasov"
-date: "Friday, April 17, 2015"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
+Mikhail Tarasov  
+Friday, April 17, 2015  
 
-```{r echo = TRUE}
+
+```r
 #opts_chunk$set(echo = TRUE)
 Sys.setlocale("LC_TIME", "English")
+```
+
+```
+## [1] "English_United States.1252"
 ```
 
 ## Loading and preprocessing the data
 Unzip *activity.zip* into sub-folder *data*. Then read the data file and load data into *activity* data set.
 Convert column *date* into *Date* data type. 
-```{r loading_data}
+
+```r
 if (!file.exists("data\activity.csv")) 
 {
     if (file.exists("activity.zip")) 
@@ -33,39 +34,72 @@ activity$date <- as.Date(activity$date, format = "%Y-%m-%d")
 summary(activity)
 ```
 
+```
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0  
+##  NA's   :2304
+```
+
 I will use **dplyr** package for data manipulation.
-```{r message=FALSE}
+
+```r
 library(dplyr)
 ```
 
 ## What is mean total number of steps taken per day?
 Missing values are ignored. Chain operators are intensively used here.
-```{r mean_calc_na_ignored}
+
+```r
 totalStepsByDate <- 
     activity %>%
     filter(is.na(steps)==FALSE) %>%
     group_by(date) %>%
     summarise(sum(steps))
 plot(totalStepsByDate, type = "h",  main = "Total number of steps taken per day")
+```
 
+![](PA1_template_files/figure-html/mean_calc_na_ignored-1.png) 
 
+```r
 meanStepsByDate <- 
     activity %>%
     filter(is.na(steps)==FALSE) %>%
     group_by(date) %>%
     summarise(mean(steps))
 summary(meanStepsByDate)
+```
 
+```
+##       date             mean(steps)     
+##  Min.   :2012-10-02   Min.   : 0.1424  
+##  1st Qu.:2012-10-16   1st Qu.:30.6979  
+##  Median :2012-10-29   Median :37.3785  
+##  Mean   :2012-10-30   Mean   :37.3826  
+##  3rd Qu.:2012-11-16   3rd Qu.:46.1597  
+##  Max.   :2012-11-29   Max.   :73.5903
+```
+
+```r
 plot(meanStepsByDate, type = "h", main = "Mean total number of steps taken per day")
+```
+
+![](PA1_template_files/figure-html/mean_calc_na_ignored-2.png) 
+
+```r
 names(totalStepsByDate)[2]<-"steps"
 medianSteps<-median(totalStepsByDate$steps)
 meanSteps <- mean(totalStepsByDate$steps)
-
 ```
-The median number of steps is **`r medianSteps`**.
+The median number of steps is **10765**.
 
 ## What is the average daily activity pattern?
-```{r average_daily_activity}
+
+```r
 meanStepsByInterval <- 
     activity %>%
     filter(is.na(steps)==FALSE) %>%
@@ -75,36 +109,71 @@ meanStepsByInterval <-
 plot(meanStepsByInterval, type = "l", main = "Average daily activity pattern")
 ```
 
-```{r}
+![](PA1_template_files/figure-html/average_daily_activity-1.png) 
+
+
+```r
 names(meanStepsByInterval)[2]<-"mean_steps"
 names(meanStepsByDate)[2]<-"mean_steps"
 maxInterval <- meanStepsByInterval[which.max(meanStepsByInterval$mean_steps), 1]
 maxSteps <- max(meanStepsByInterval$mean_steps)
 ```
-The maximum number of steps is **`r maxSteps`**. This is *`r maxInterval`th* interval (which contains the maximum number of steps).
+The maximum number of steps is **206.1698113**. This is *835th* interval (which contains the maximum number of steps).
 
 ## Imputing missing values
 ###Counting total number of missing values
-```{r is_na, echo=TRUE}
+
+```r
 naValues <- colSums(is.na(activity))
 naCount <- sum(naValues)
 naValues
 ```
 
-As we can see there are **`r naCount`** rows with NA's and they are in *steps* column only.
+```
+##    steps     date interval 
+##     2304        0        0
+```
+
+As we can see there are **2304** rows with NA's and they are in *steps* column only.
 
 ### Filling in all of the missing values & creating a new dataset
-```{r}
+
+```r
 new_activity <- 
     activity %>%
     group_by(interval) %>%
     mutate(steps = ifelse(is.na(steps), as.integer(mean(steps, na.rm =TRUE)), steps))
 summary(activity)
+```
+
+```
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0  
+##  NA's   :2304
+```
+
+```r
 summary(new_activity)
- ```
+```
+
+```
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.33   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 27.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0
+```
 ### Making a histograms. 
 There are NO missing values.
-```{r mean_calc_no_na, fig.height=11}
+
+```r
 par(mfrow = c(2, 1))
 plot(totalStepsByDate, type = "h", main = "Total steps by date, with NA")
 totalStepsByDate <- 
@@ -113,7 +182,11 @@ totalStepsByDate <-
     group_by(date) %>%
     summarise(sum(steps))
 plot(totalStepsByDate, type = "h", main = "Total steps by date, without NA")
+```
 
+![](PA1_template_files/figure-html/mean_calc_no_na-1.png) 
+
+```r
 plot(meanStepsByDate, type = "h", main = "Avg steps by date, with NA")
 meanStepsByDate <- 
     new_activity %>%
@@ -124,6 +197,11 @@ meanStepsByDate <-
 
 
 plot(meanStepsByDate, type = "h", main = "Avg steps by date, without NA")
+```
+
+![](PA1_template_files/figure-html/mean_calc_no_na-2.png) 
+
+```r
 #hist(meanStepsByDate$mean_steps, main = "Histogram of avg steps, with NA",  col = "orange")
 #hist(newMeanStepsByDate$mean_steps, main = "Histogram of avg steps, without NA",  col = "orange")
 ```
@@ -132,14 +210,22 @@ As we can see there are no gaps in the plots without NA's. But there are several
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r add_variable}
+
+```r
 new_activity <- cbind(new_activity, as.factor(ifelse(weekdays(new_activity$date) %in% (c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")), yes = "weekday", no = "weekend")))
 names(new_activity)[4]<-"weekDay_End"
 table(new_activity$weekDay_End)
 ```
 
+```
+## 
+## weekday weekend 
+##   12960    4608
+```
 
-```{r message=FALSE}
+
+
+```r
 library(lattice)
 
 #Transforming data for the plot
@@ -158,5 +244,7 @@ g1 <- xyplot(y ~ x | f, xlab ="Interval", ylab = "Avg steps", main = "Activity p
   })
 print(g1)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
 
 Activity patterns are different. I can see that at the weekends there are much more steps during daytime.
