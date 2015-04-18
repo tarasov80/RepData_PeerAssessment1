@@ -96,6 +96,7 @@ medianSteps<-median(totalStepsByDate$steps)
 meanSteps <- mean(totalStepsByDate$steps)
 ```
 The median number of steps is **10765**.
+The mean number of steps is **1.0766189\times 10^{4}**.
 
 ## What is the average daily activity pattern?
 

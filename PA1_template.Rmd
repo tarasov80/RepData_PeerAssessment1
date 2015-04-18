@@ -63,6 +63,7 @@ meanSteps <- mean(totalStepsByDate$steps)
 
 ```
 The median number of steps is **`r medianSteps`**.
+The mean number of steps is **`r meanSteps`**.
 
 ## What is the average daily activity pattern?
 ```{r average_daily_activity}
