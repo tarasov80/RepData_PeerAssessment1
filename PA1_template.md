@@ -60,7 +60,8 @@ totalStepsByDate <-
     filter(is.na(steps)==FALSE) %>%
     group_by(date) %>%
     summarise(sum(steps))
-plot(totalStepsByDate, type = "h",  main = "Total number of steps taken per day")
+names(totalStepsByDate)[2]<-"steps"
+hist(x = totalStepsByDate$steps, xlab = "Total number of steps", col = "orange")
 ```
 
 ![](PA1_template_files/figure-html/mean_calc_na_ignored-1.png) 
@@ -91,12 +92,11 @@ plot(meanStepsByDate, type = "h", main = "Mean total number of steps taken per d
 ![](PA1_template_files/figure-html/mean_calc_na_ignored-2.png) 
 
 ```r
-names(totalStepsByDate)[2]<-"steps"
-medianSteps<-median(totalStepsByDate$steps)
-meanSteps <- mean(totalStepsByDate$steps)
+medianSteps<-as.character(round(median(totalStepsByDate$steps)))
+meanSteps <- as.character(round(mean(totalStepsByDate$steps)))
 ```
 The median number of steps is **10765**.
-The mean number of steps is **1.0766189\times 10^{4}**.
+The mean number of steps is **10766**.
 
 ## What is the average daily activity pattern?
 
@@ -171,43 +171,53 @@ summary(new_activity)
 ##  3rd Qu.: 27.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
 ##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0
 ```
-### Making a histograms. 
-There are NO missing values.
 
 ```r
-par(mfrow = c(2, 1))
-plot(totalStepsByDate, type = "h", main = "Total steps by date, with NA")
-totalStepsByDate <- 
+newTotalStepsByDate <- 
     new_activity %>%
     filter(is.na(steps)==FALSE) %>%
     group_by(date) %>%
     summarise(sum(steps))
-plot(totalStepsByDate, type = "h", main = "Total steps by date, without NA")
-```
+names(newTotalStepsByDate)[2]<-"steps"
 
-![](PA1_template_files/figure-html/mean_calc_no_na-1.png) 
-
-```r
-plot(meanStepsByDate, type = "h", main = "Avg steps by date, with NA")
-meanStepsByDate <- 
+newMeanStepsByDate <- 
     new_activity %>%
     filter(is.na(steps)==FALSE) %>%
     group_by(date) %>%
     summarise(mean(steps))
-#names(newMeanStepsByDate)[2]<-"mean_steps"
-
-
-plot(meanStepsByDate, type = "h", main = "Avg steps by date, without NA")
+names(newMeanStepsByDate)[2]<-"mean_steps"
 ```
+### Making a histograms. 
+There are NO missing values.
 
-![](PA1_template_files/figure-html/mean_calc_no_na-2.png) 
 
 ```r
-#hist(meanStepsByDate$mean_steps, main = "Histogram of avg steps, with NA",  col = "orange")
-#hist(newMeanStepsByDate$mean_steps, main = "Histogram of avg steps, without NA",  col = "orange")
+par(mfrow = c(2, 1))
+plot(meanStepsByDate, type = "h", main = "Avg steps by date, with NA")
+plot(newMeanStepsByDate, type = "h", main = "Avg steps by date, without NA")
 ```
 
+![](PA1_template_files/figure-html/mean_calc_no_na_plots-1.png) 
+
+
+
+```r
+par(mfrow = c(2, 1))
+hist(totalStepsByDate$steps, main = "Histogram of total steps, with NA",  col = "orange")
+hist(newTotalStepsByDate$steps, main = "Histogram of total steps, without NA",  col = "orange")
+```
+
+![](PA1_template_files/figure-html/mean_calc_no_na_hist-1.png) 
+
+```r
+newMedianSteps<-as.character(round(median(newTotalStepsByDate$steps)))
+newMeanSteps <- as.character(round(mean(newTotalStepsByDate$steps)))
+```
+The median number of steps *without NA* is **10641**.
+The mean number of steps *without NA* is **10750**.
+
 As we can see there are no gaps in the plots without NA's. But there are several day with zero steps (i.e. the 2nd of October, the 15th of November) and it's very stange and further investigation is (and may be data correction) needed.
+So histograms are also changed.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
